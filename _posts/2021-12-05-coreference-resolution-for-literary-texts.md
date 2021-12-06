@@ -43,6 +43,45 @@ There are several challenges for the literary domain, some notable ones as follo
 
 * Ambiguity: unlike newswires or reports, literary entities can change over the course of a novel. For instance, is the seven-year-old Pip at the beginning of Dicken's *Great Expectations* the same identity as the thiry-year-old Pip in the end? Such questions are philosophical and computer programs cannot answer in full. Most coreference systems treat the entities as static throughout a piece of text for simplicity.
 
+## Evaluation metrics
+
+Having briefly elaborated on the task itself as well as specific domain challenges, let us turn to the evaluation metrics before diving into the specific model architectures. To evaluate the effectiveness of a coreference resolution model, the research community has developed several metrics employed in the well-known CONLL shared task:
+
+* B-CUBED. This metric takes the weighted sum of the precision or recall for each mention, e.g. 
+$ Recall = \sum_{r \in R} w_r \cdot \sum_{t \in T} \frac{|t \cap r|^2}{|t|} $. $R$ is the predicted result set of entity clusters, $T$ is the true set of entity clusters, $w_r$ is the weight for entity $r$, and the right-most factor is the number of true positives divided by the number of all positives [[Moosavi et al., 2016]](#Moosavi).
+
+* MUC. If we consider a coreferent cluster as a set of linked mentions, the MUC metric measures the minimum number of link modifications needed to make $R$ the same as $T$, e.g. $Recall = \sum_{t \in T} \frac{|t| - |partition(t, R)|}{|t| - 1} $. The partition function measures the number of clusters in the set of predicted clusters $R$ that intersect with the given true cluster $t$.
+
+* CEAF. This metric first maps predicted result entity clusters $r \in R$ to true entity clusters $t \in T$ via a similarity measure denoted $\phi(T, R)$. We then use the mapped true cluster $m(r)$ with maximum similarity to $r$ to compute the precision or recall, e.g. $Recall = \max_m \frac{\sum_{r \in R} \phi(r, m(r))}{|T|}$ .
+
+## Coreference Models
+
+### Popular Approaches at a Glance
+
+As coreference resolution is a long-standing traditional task, there has been a surge of rule-based, linguistic-driven, and neural-network-based approaches. [[Lee et al., 2017]](#Lee) has summarized the popular model approaches as follows:
+
+1. Mention-pair classifiers
+
+Being the most intuitive yet inefficient model type, mention-pair classifiers iterate over all possible pairs of mentions (where a `mention' is defined as a reference to an entity) and train a binary classifier on each pair to predict whether or not the mentions in that pair are coreferent. Then define some thresholding criterion to turn these yes-no coreference pairs into a cluster of mentions for each entity. {https://web.stanford.edu/class/archive/cs/cs224n/cs224n. 1162/handouts/cs224n-lecture11-coreference.pdf}
+
+2. Entity-level models
+
+Entity-level models, also called cluster-based models, incorporate features defined over clusters of entities as opposed to just mention pairs when making decisions regarding coreference scores. In [[Clark and Manning, 2016]](#ClarkandManning), the authors proposed a neural network approach with dense vector representations over pairs of coreference clusters for model training. 
+
+3. Mention-ranking models
+The mention-pair method only indirectly solves the coreference resolution task. Note that we want clusters for each entity, not coreferent pairs, and it is unclear what is the best way to merge these pairs into clusters. Furthermore, the mention-pair technique allows for incompatible mentions in the same cluster: a female entity could be coreferent with `he' in one pair and coreferent with `she' in another pair, so the gender of the cluster would be ambiguous. The mention-ranking approach helps prevent this problem by ranking the possible antecedents and choosing just one antecedent for a given mention {https://galhever.medium.com/a-review-to-co-reference-resolution-models-f44b4360a00}
+
+
+### End-to-end Neural Coreference Resolution
+
+[[Lee et al., 2017]](#Lee) has proposed the first end-to-end neural coreference resolution system. 
+
+
+
+#### References
+
+(Double check citation format!)
+Nafise   Sadat   Moosavi   and   Michael   Strube.   2016.Which coreference evaluation metric do you trust?a proposal for a link-based entity aware metric.As-sociation for Computational Linguistics
 ### Code
 
 {% highlight js %}
