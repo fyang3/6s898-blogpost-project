@@ -1,14 +1,11 @@
 ---
 layout: post
 title: Coreference Resolution for Literary Texts
-tags: [test, tutorial, markdown]
+tags: [Coreference Resolution, Neural Network, English Literature, Computational Humanities]
 authors: Yang, Funing, Wellesley College
 ---
 
 
-<div class="message">
-  Hello world!
-</div>
 
 
 ## Inline HTML elements
@@ -24,7 +21,27 @@ HTML defines a long list of available inline tags, a complete list of which can 
 
 Most of these elements are styled by browsers with few modifications on our part.
 
-## Coreference Resolution for Literary Texts
+# Coreference Resolution for Literary Texts
+
+## The Task
+
+The coreference resolution task is a long-standing clustering task in Natural Language Processing (NLP) that links mentions that refer to the same entities together. A mention is a noun or a noun phrase and normally falls into categories such as a person, a location, or an organization, etc. Given this definition, the coreference resolution task is often closely related to the Named Entity Recognition (NER) task, where it identifies all named entities (such as person, location, organization, date, etc.). And indeed, NER is always incorporated in coreference resolution models or inference algorithms.
+
+For example, consider the following sentence:
+
+"(Harry Potter) is the (boy-who-lived), and (he) made {Voldemort} lose {his} power when (he) was a baby." As humans, we can easily perceive that the mentions in parenthesis are referring to Harry, and in curly brackets are the ones referring to Voldemort. However, more complex sentence structures will give rise to subtle challenges for this task.
+
+Coreference resolution has lots of applications, and is often an important foundational task in many NLP tasks, such as question answering, text summarization, reading comprehension, and in interdisciplinary areas such as computational social sciences and humanities, which we'll elaborate on in this post.
+
+## Challenges for the Literary domain
+
+There are several challenges for the literary domain, some notable ones as follows:
+
+* Lengthy sentences: according to [[Bamman et al.,2019]](#Bamman), literary texts in the Litbank dataset, a representative selection of 100 works from classic English literary texts across 18th to 20th century, are four times longer than the OntoNotes dataset for traditional named entity recognition tasks. The length of the sentence poses a significant challenge for the coreference models as they tend to have limited maximal distances for preceding and subsequent spans to make inferences on.
+
+* Nested mentions: unlike straightforward news texts and day-to-day English usage, literary texts often contain ambiguous nested structures in their figurative language usages. For example, "the smart and wise Hobbit Frodo" has two layers of mentions: the entire phrase, or just "Frodo", the proper name. Given this challenge, coreference resolution models for the English literature domain often needs to be trained on either the longest or shortest spans of mentions.
+
+* Ambiguity: unlike newswires or reports, literary entities can change over the course of a novel. For instance, is the seven-year-old Pip at the beginning of Dicken's *Great Expectations* the same identity as the thiry-year-old Pip in the end? Such questions are philosophical and computer programs cannot answer in full. Most coreference systems treat the entities as static throughout a piece of text for simplicity.
 
 ### Code
 
