@@ -4,9 +4,6 @@ title: Coreference Resolution for Literary Texts
 tags: [Coreference Resolution, Neural Network, English Literature, Computational Humanities]
 authors: Yang, Funing, Wellesley College
 ---
-
-# Coreference Resolution for Literary Texts
-
 ## The Task
 
 The coreference resolution task is a long-standing clustering task in Natural Language Processing (NLP) that links mentions that refer to the same entities together. A mention is a noun or a noun phrase and normally falls into categories such as a person, a location, or an organization, etc. Given this definition, the coreference resolution task is often closely related to the Named Entity Recognition (NER) task, where it identifies all named entities (such as person, location, organization, date, etc.). And indeed, NER is always incorporated in coreference resolution models or inference algorithms.
@@ -126,36 +123,43 @@ They only consider spans up to L words for unary mention scores; further, they o
 
 (3) We can also observe the texts for experiments are relatively simple without too complex syntactic structures or figurative languages. While this is sufficient for most daily text sources, literature does requires more finetuning and domain-specific adaptations.
 
+### LitBank Coreference Pipeline
+As mentioned above, the Litbank dataset features selections from 100 English-language novels between the 18-20 century. The Litbank literary coreference dataset [[Bamman et al., 2020]](#Bamman) contains 29,103 mentions in 210,532 tokens from 100 fictions. 
+
+Bamman et al. also trained a coreference resolution system specifically for the literary domain. The model is largely built upon Lee et al.'s pipeline with the following differences:
+
+1. BERT contextual representations instead of static GloVe word vectors and a subword character CNN
+2. Train and predict conditioning on mention boundaries
+3. No author/genre information
+4. Only antecedents within 20 mentions for pronouns and 300 mentions for proper noun phrases and common noun phrases.
+
+Bamman et al.'s architecture, similar to Lee et al.'s, can be summarized in the following two steps:
+* Mention Representations
+Bamman et al. computed representations for each mention span by passing BERT contextual representations to a bidirectional LSTM, then through an attention network, then finally through various embeddings of span width and location within a quotation. 
+    
+* Mention Ranking
+ Each mention span representation is passed through a linear network, concatenated with representations of previous spans (which correspond to all the possible candidate antecedents), and finally concatenated with yet more embeddings representing distance and nested mentions. Then, a score is computed for each candidate antecedent.
+
+### FanfictionNLP Character Coreference Pipeline
+The fanfictionNLP pipeline [[Yoder et al. 2021]](#Yoder) is a text processing pipeline designed for fanfictions. It contains the following modules: character coreference, assertion extraction, quote attribution. For the purpose of our post, we're only focus on the first module and the underlying coreference resolution model within it.
+
+Similar to Bamman et al, FanfictionNLP pipeline also applies the Lee et al.'s architecture with the following modifications:
+
+1. SpanBERT-based embeddings for contextual mention representations. SpanBERT [[Joshi et al., 2020]](#Joshi) is a variation of the BERT models and also the current state-of-the-art for the OntoNotes and CoNLL benchmarks, outperforms BERT on coreference resolution tasks by masking spans of tokens instead of individual ones. 
+
+2. Fine-tuning on Litbank dataset in addition to the original OntoNotes dataset that SpanBERT is trained on.
+
+
+## Domain-specific Challenges and Future Work
+
 #### References
 
 (Double check citation format!)
 Nafise   Sadat   Moosavi   and   Michael   Strube.   2016.Which coreference evaluation metric do you trust?a proposal for a link-based entity aware metric.As-sociation for Computational Linguistics
-### Code
 
-{% highlight js %}
-// Example can be run directly in your JavaScript console
-
-// Create a function that takes two arguments and returns the sum of those arguments
-var adder = new Function("a", "b", "return a + b");
-
-// Call the function
-adder(2, 6);
-// > 8
-{% endhighlight %}
 
 
 ### Lists
-
-<dl>
-  <dt>HyperText Markup Language (HTML)</dt>
-  <dd>The language used to describe and define the content of a Web page</dd>
-
-  <dt>Cascading Style Sheets (CSS)</dt>
-  <dd>Used to describe the appearance of Web content</dd>
-
-  <dt>JavaScript (JS)</dt>
-  <dd>The programming language used to build advanced Web sites and applications</dd>
-</dl>
 
 
 ### Tables
