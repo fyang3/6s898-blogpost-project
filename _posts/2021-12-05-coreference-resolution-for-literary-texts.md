@@ -34,9 +34,9 @@ Having briefly elaborated on the task itself as well as specific domain challeng
 * B-CUBED. This metric takes the weighted sum of the precision or recall for each mention, e.g. 
 $ Recall = \sum_{r \in R} w_r \cdot \sum_{t \in T} \frac{|t \cap r|^2}{|t|} $. $R$ is the predicted result set of entity clusters, $T$ is the true set of entity clusters, $w_r$ is the weight for entity $r$, and the right-most factor is the number of true positives divided by the number of all positives [[Moosavi et al., 2016]](#Moosavi).
 
-* MUC. If we consider a coreferent cluster as a set of linked mentions, the MUC metric measures the minimum number of link modifications needed to make $R$ the same as $T$, e.g. $$Recall = \sum_{t \in T} \frac{|t| - |partition(t, R)|}{|t| - 1} $$. The partition function measures the number of clusters in the set of predicted clusters $R$ that intersect with the given true cluster $$t$$.
+* MUC. If we consider a coreferent cluster as a set of linked mentions, the MUC metric measures the minimum number of link modifications needed to make $R$ the same as $T$. The partition function measures the number of clusters in the set of predicted clusters $R$ that intersect with the given true cluster $$t$$.
 
-* CEAF. This metric first maps predicted result entity clusters $r \in R$ to true entity clusters $t \in T$ via a similarity measure denoted $\phi(T, R)$. We then use the mapped true cluster $m(r)$ with maximum similarity to $r$ to compute the precision or recall, e.g. $Recall = \max_m \frac{\sum_{r \in R} \phi(r, m(r))}{|T|}$ .
+* CEAF. This metric first maps predicted result entity clusters $r \in R$ to true entity clusters $t \in T$ via a similarity measure denoted $\phi(T, R)$. We then use the mapped true cluster $m(r)$ with maximum similarity to $r$ to compute the precision or recall.
 
 ## Coreference Models
 
@@ -117,14 +117,14 @@ $s(i,j)$ is the pairwise score for a coreference link between span i and span j 
 The $\epsilon$ represents the dummy antecedent, where span j is either not an entity mention, or it is an entity mention but it is not coreferent with any previous span. By setting the coreference score to 0, the model is able to aggressively prune away the pairs less likely to belong in the same cluster to save computational costs. 
 
 
-
-
-3. Output
-
 #### Challenges
 
+(1) As mentioned in the paper, the biggest challenge of the model is the computational size, with the full model reaching $O(T^4)$ with document length T. To address this challenge, the authors proposes an aggressive pruning approach where they greedily prune potential spans with the following constraints:
+They only consider spans up to L words for unary mention scores; further, they only keep the top $\lambda*T$ spans with the highest mention scores and consider only up to K antecedents for each.
 
+(2) From a qualitative analysis, we can observe that the usage of word embeddings for word similarity makes the model prone to predicting false positive links with related/similar words. Consider the following example listed in the paper: "(The flight attendants) have until 6:00 today to ratify labor concessions. (The pilots’) union and ground crew did so yesterday." The model mistakenly identifies "the flight attendants" and "the pilots'" as coreferent, possibly due to the shared contextual embeddings they have. 
 
+(3) We can also observe the texts for experiments are relatively simple without too complex syntactic structures or figurative languages. While this is sufficient for most daily text sources, literature does requires more finetuning and domain-specific adaptations.
 
 #### References
 
