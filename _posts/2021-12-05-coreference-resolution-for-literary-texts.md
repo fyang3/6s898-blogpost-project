@@ -5,22 +5,6 @@ tags: [Coreference Resolution, Neural Network, English Literature, Computational
 authors: Yang, Funing, Wellesley College
 ---
 
-
-
-
-## Inline HTML elements
-
-HTML defines a long list of available inline tags, a complete list of which can be found on the [Mozilla Developer Network](https://developer.mozilla.org/en-US/docs/Web/HTML/Element).
-
-- **To bold text**, use `<strong>`.
-- *To italicize text*, use `<em>`.
-- Abbreviations, like <abbr title="HyperText Markup Langage">HTML</abbr> should use `<abbr>`, with an optional `title` attribute for the full phrase.
-- Citations, like <cite>&mdash; Mark otto</cite>, should use `<cite>`.
-- <del>Deleted</del> text should use `<del>` and <ins>inserted</ins> text should use `<ins>`.
-- Superscript <sup>text</sup> uses `<sup>` and subscript <sub>text</sub> uses `<sub>`.
-
-Most of these elements are styled by browsers with few modifications on our part.
-
 # Coreference Resolution for Literary Texts
 
 ## The Task
@@ -50,7 +34,7 @@ Having briefly elaborated on the task itself as well as specific domain challeng
 * B-CUBED. This metric takes the weighted sum of the precision or recall for each mention, e.g. 
 $ Recall = \sum_{r \in R} w_r \cdot \sum_{t \in T} \frac{|t \cap r|^2}{|t|} $. $R$ is the predicted result set of entity clusters, $T$ is the true set of entity clusters, $w_r$ is the weight for entity $r$, and the right-most factor is the number of true positives divided by the number of all positives [[Moosavi et al., 2016]](#Moosavi).
 
-* MUC. If we consider a coreferent cluster as a set of linked mentions, the MUC metric measures the minimum number of link modifications needed to make $R$ the same as $T$, e.g. $Recall = \sum_{t \in T} \frac{|t| - |partition(t, R)|}{|t| - 1} $. The partition function measures the number of clusters in the set of predicted clusters $R$ that intersect with the given true cluster $t$.
+* MUC. If we consider a coreferent cluster as a set of linked mentions, the MUC metric measures the minimum number of link modifications needed to make $R$ the same as $T$, e.g. $$Recall = \sum_{t \in T} \frac{|t| - |partition(t, R)|}{|t| - 1} $$. The partition function measures the number of clusters in the set of predicted clusters $R$ that intersect with the given true cluster $$t$$.
 
 * CEAF. This metric first maps predicted result entity clusters $r \in R$ to true entity clusters $t \in T$ via a similarity measure denoted $\phi(T, R)$. We then use the mapped true cluster $m(r)$ with maximum similarity to $r$ to compute the precision or recall, e.g. $Recall = \max_m \frac{\sum_{r \in R} \phi(r, m(r))}{|T|}$ .
 
@@ -74,7 +58,71 @@ The mention-pair method only indirectly solves the coreference resolution task. 
 
 ### End-to-end Neural Coreference Resolution
 
-[[Lee et al., 2017]](#Lee) has proposed the first end-to-end neural coreference resolution system. 
+[[Lee et al., 2017]](#Lee) has proposed the first end-to-end neural coreference resolution system that becomes the foundation for many subsequent neural-network based approaches for this task in the literary domain. Then, what does their architecture look like? 
+
+#### The Key Idea
+The approache considers all possible spans within a given document as potential mentions, and learns distributions over possible antecedents for each. The model computes contextualized span embeddings with the attention mechanism, and maximizes the marginal likelihood of gold antecedent spans from coreference clusters. 
+
+#### The Input
+The input for the model contains a document, D, containing T words, with optional metadata such as speakers or genre information.
+
+#### The Model
+[[Lee et al., 2017]](#Lee) utilizes LSTM and attention mechanisms for their architecture, and defined pair-wise coreference scores to apply in their span representations.
+
+1. Input to Span Representation
+
+(Insert architecture image! - Figure 1)
+
+* The first step of the end-to-end pipeline takes in the document input (as simple as a sentence), tokenize and calculate the word and character embedding (x), fixed pretrained word embeddings from 300-dimensonal GloVe embeddings, and 1-dimensional convolution neural networks (CNN) over characters.
+
+* The word embeddings then are feeded as inputs into the Bidirectional LSTM network (x*), where it encodes each word in its context, as the surrounding context for each mention span plays an integral role on the scoring of the coreference pairs. 
+
+(insert formulas on pg.190 in Span Representations)
+
+As we can observe from the equations above, x*t is the concatenated output of the bidirectional LSTM.
+
+It is interesting to note that Lee et al. only uses independent LSTMs for every sentence and decides that cross-sentence context is not helpful, this is not the case for literary texts as the mentions can span across chapters.
+
+* The Bidirectional LSTM outputs then gets passed to the next layer of the network to calculate the span head $$\hat{x}$$, where it is a weighted sum of word vectors in a given span. Attention mechanism is applied using this step over words within each span.
+
+(Insert: formula block on top of p.191)
+
+* The final span representation is then calculated as the accumulation of all the above information with:
+
+(Insert: formula block for gi on p191)
+
+
+
+2. Coreference Scoring Calculation
+* Once we have the span representation calculated from the first step, we then move on to the coreference scoring calculation step to obtain the final coreference score for a pair of spans.
+
+The architecture is as follows:
+
+(insert Figure 2. on p.190)
+
+Recall from the last step that each possible span i in the document will have a corresponding vector representation $g(i)$. Given the span representations, the scoring functions are then calculated via feed-forward neural networks:
+
+(insert equation on p. 190 left)
+
+* With the coreference score (s) being calculated, we are finally able to learn the conditional probability distribution $P(y1,...,yn|D)$ with the final softmax layer to represent the most likely configuration that produces the correct clustering. 
+
+The equation is as follows:
+
+(insert equation (top) on p. 189)
+
+$s(i,j)$ is the pairwise score for a coreference link between span i and span j in document D. Lee et al. define it as follows:
+
+(insert equation (bottom) on p.189)
+
+The $\epsilon$ represents the dummy antecedent, where span j is either not an entity mention, or it is an entity mention but it is not coreferent with any previous span. By setting the coreference score to 0, the model is able to aggressively prune away the pairs less likely to belong in the same cluster to save computational costs. 
+
+
+
+
+3. Output
+
+#### Challenges
+
 
 
 
@@ -97,15 +145,6 @@ adder(2, 6);
 
 
 ### Lists
-
-
-* Praesent commodo cursus magna, vel scelerisque nisl consectetur et.
-* Donec id elit non mi porta gravida at eget metus.
-* Nulla vitae elit libero, a pharetra augue.
-
-1. Vestibulum id ligula porta felis euismod semper.
-2. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
-3. Maecenas sed diam eget risus varius blandit sit amet non magna.
 
 <dl>
   <dt>HyperText Markup Language (HTML)</dt>
