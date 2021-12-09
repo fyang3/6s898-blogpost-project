@@ -69,7 +69,7 @@ The input for the model contains a document, D, containing T words, with optiona
 
 ##### Input to Span Representation
 
-![From Lee et al. Doc Input to Mention Score]({{ site.url }}/public/images/2021-12-08-coreference-literary-texts/step1_architecture.png)
+![From Lee et al. Doc Input to Mention Score](https://fyang3.github.io/6s898-blogpost-project/2021/12/05/coreference-resolution-for-literary-texts/public/images/2021-12-08-coreference-literary-texts/step1_architecture.png)
 
 * The first step of the end-to-end pipeline takes in the document input (as simple as a sentence), tokenize and calculate the word and character embedding (x), fixed pretrained word embeddings from 300-dimensonal GloVe embeddings, and 1-dimensional convolution neural networks (CNN) over characters.
 
