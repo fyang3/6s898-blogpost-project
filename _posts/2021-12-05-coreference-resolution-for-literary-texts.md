@@ -69,7 +69,6 @@ The input for the model contains a document, D, containing T words, with optiona
 
 ##### Input to Span Representation
 
-![From Lee et al. Doc Input to Mention Score](https://fyang3.github.io/6s898-blogpost-project/2021/12/05/coreference-resolution-for-literary-texts/public/images/2021-12-05-coreference-literary-texts/step1_architecture.png)
 {% raw %}![From Lee et al. Doc Input to Mention Score](https://fyang3.github.io/6s898-blogpost-project/public/images/step1_architecture1.png){% endraw %}
 
 
@@ -77,8 +76,7 @@ The input for the model contains a document, D, containing T words, with optiona
 
 * The word embeddings then are feeded as inputs into the Bidirectional LSTM network (x*), where it encodes each word in its context, as the surrounding context for each mention span plays an integral role on the scoring of the coreference pairs. 
 
-(insert formulas on pg.190 in Span Representations)
-![Equations for Span Representations]({{ site.url }}/public/images/2021-12-08-coreference-literary-texts/p.190_span_representations.png)
+{% raw %}![Equations for Span Representations](https://fyang3.github.io/6s898-blogpost-project/public/images/p.190_span_representations.png){% endraw %}
 
 As we can observe from the equations above, x*t is the concatenated output of the bidirectional LSTM.
 
@@ -86,14 +84,12 @@ It is interesting to note that Lee et al. only uses independent LSTMs for every 
 
 * The Bidirectional LSTM outputs then gets passed to the next layer of the network to calculate the span head $$\hat{x}$$, where it is a weighted sum of word vectors in a given span. Attention mechanism is applied using this step over words within each span.
 
-(Insert: formula block on top of p.191)
-![Equations for Weighted Sum of Word Vectors]({{ site.url }}/public/images/2021-12-05-coreference-literary-texts/formula_top_of_191.png)
+{% raw %}![Equations for Weighted Sum of Word Vectors](https://fyang3.github.io/6s898-blogpost-project/public/images/formula_top_of_191.png){% endraw %}
 
 * The final span representation is then calculated as the accumulation of all the above information with:
 
-(Insert: formula block for gi on p191)
 ![Equation for g(i)]({{ site.url }}/public/images/2021-12-08-coreference-literary-texts/formula_g(i)_191.png)
-
+{% raw %}![Equations for Weighted Sum of Word Vectors](https://fyang3.github.io/6s898-blogpost-project/public/images/formula_g(i)_191.png){% endraw %}
 
 ##### Coreference Scoring Calculation
 
@@ -101,23 +97,25 @@ It is interesting to note that Lee et al. only uses independent LSTMs for every 
 
 The architecture is as follows:
 
-(insert Figure 2. on p.190)
 ![Lee et al. Pipeline 2nd Step]({{ site.url }}/public/images/2021-12-08-coreference-literary-texts/fig.2_p.190.png)
+{% raw %}![Lee et al. Pipeline 2nd Step](https://fyang3.github.io/6s898-blogpost-project/public/images/fig.2_p.190.png){% endraw %}
 
 Recall from the last step that each possible span i in the document will have a corresponding vector representation $g(i)$. Given the span representations, the scoring functions are then calculated via feed-forward neural networks:
 
-(insert equation on p. 190 left)
 ![Scoring Architecture]({{ site.url }}/public/images/2021-12-08-coreference-literary-texts/scoring_architecture_p.190.png)
+{% raw %}![Scoring Architecture](https://fyang3.github.io/6s898-blogpost-project/public/images/scoring_architecture_p.190.png){% endraw %}
 
 * With the coreference score (s) being calculated, we are finally able to learn the conditional probability distribution $P(y1,...,yn|D)$ with the final softmax layer to represent the most likely configuration that produces the correct clustering. 
 
 The equation is as follows:
 ![Pairwise Coreference Score]({{ site.url }}/public/images/2021-12-08-coreference-literary-texts/pairwise_coref_score_p189.png)
+{% raw %}![Pairwise Coreference Score](https://fyang3.github.io/6s898-blogpost-project/public/images/pairwise_coref_score_p189.png){% endraw %}
 
 $s(i,j)$ is the pairwise score for a coreference link between span i and span j in document D. Lee et al. define it as follows:
 
 (insert equation (bottom) on p.189)
 ![Learning Objective]({{ site.url }}/public/images/2021-12-08-coreference-literary-texts/learning_obj_p189.png)
+{% raw %}![Learning Objective](https://fyang3.github.io/6s898-blogpost-project/public/images/learning_obj_p189.png){% endraw %}
 
 
 The $\epsilon$ represents the dummy antecedent, where span j is either not an entity mention, or it is an entity mention but it is not coreferent with any previous span. By setting the coreference score to 0, the model is able to aggressively prune away the pairs less likely to belong in the same cluster to save computational costs. 
