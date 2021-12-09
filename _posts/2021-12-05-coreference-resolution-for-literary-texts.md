@@ -102,7 +102,7 @@ Recall from the last step that each possible span i in the document will have a 
 
 {% raw %}![Scoring Architecture](https://fyang3.github.io/6s898-blogpost-project/public/images/scoring_architecture_p.190.png){% endraw %}
 
-* With the coreference score (s) being calculated, we are finally able to learn the conditional probability distribution $P(y1,...,yn|D)$ with the final softmax layer to represent the most likely configuration that produces the correct clustering. 
+* With the coreference score (s) being calculated, we are finally able to learn the conditional probability distribution P(y1,...,yn|D) with the final softmax layer to represent the most likely configuration that produces the correct clustering. 
 
 The equation is as follows:
 {% raw %}![Pairwise Coreference Score](https://fyang3.github.io/6s898-blogpost-project/public/images/pairwise_coref_score_p189.png){% endraw %}
