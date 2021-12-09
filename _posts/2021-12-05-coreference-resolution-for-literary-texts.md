@@ -22,7 +22,7 @@ There are several challenges for the literary domain, some notable ones as follo
 
 * Nested mentions: unlike straightforward news texts and day-to-day English usage, literary texts often contain ambiguous nested structures in their figurative language usages. For example, "the smart and wise Hobbit Frodo" has two layers of mentions: the entire phrase, or just "Frodo", the proper name. Given this challenge, coreference resolution models for the English literature domain often needs to be trained on either the longest or shortest spans of mentions.
 
-* Ambiguity: unlike newswires or reports, literary entities can change over the course of a novel. For instance, is the seven-year-old Pip at the beginning of Dicken's *Great Expectations* the same identity as the thiry-year-old Pip in the end? Such questions are philosophical and computer programs cannot answer in full. Most coreference systems treat the entities as static throughout a piece of text for simplicity.
+* Ambiguity: unlike newswires or reports, literary entities can change over the course of a novel. For instance, as Bamman et al. mentions, is the seven-year-old Pip at the beginning of Dicken's *Great Expectations* the same identity as the thiry-year-old Pip in the end? Such questions are philosophical and computer programs cannot answer in full. Most coreference systems treat the entities as static throughout a piece of text for simplicity.
 
 ## Evaluation metrics
 
@@ -41,16 +41,17 @@ $ Recall = \sum_{r \in R} w_r \cdot \sum_{t \in T} \frac{|t \cap r|^2}{|t|} $. $
 
 As coreference resolution is a long-standing traditional task, there has been a surge of rule-based, linguistic-driven, and neural-network-based approaches. [[Lee et al., 2017]](#Lee) has summarized the popular model approaches as follows:
 
-1. Mention-pair classifiers
+* Mention-pair classifiers
 
-Being the most intuitive yet inefficient model type, mention-pair classifiers iterate over all possible pairs of mentions (where a `mention' is defined as a reference to an entity) and train a binary classifier on each pair to predict whether or not the mentions in that pair are coreferent. Then define some thresholding criterion to turn these yes-no coreference pairs into a cluster of mentions for each entity. {https://web.stanford.edu/class/archive/cs/cs224n/cs224n. 1162/handouts/cs224n-lecture11-coreference.pdf}
+Being the most intuitive yet inefficient model type, mention-pair classifiers iterate over all possible pairs of mentions (where a `mention' is defined as a reference to an entity) and train a binary classifier on each pair to predict whether or not the mentions in that pair are coreferent. Then define some thresholding criterion to turn these yes-no coreference pairs into a cluster of mentions for each entity. 
 
-2. Entity-level models
+* Entity-level models
 
 Entity-level models, also called cluster-based models, incorporate features defined over clusters of entities as opposed to just mention pairs when making decisions regarding coreference scores. In [[Clark and Manning, 2016]](#ClarkandManning), the authors proposed a neural network approach with dense vector representations over pairs of coreference clusters for model training. 
 
-3. Mention-ranking models
-The mention-pair method only indirectly solves the coreference resolution task. Note that we want clusters for each entity, not coreferent pairs, and it is unclear what is the best way to merge these pairs into clusters. Furthermore, the mention-pair technique allows for incompatible mentions in the same cluster: a female entity could be coreferent with `he' in one pair and coreferent with `she' in another pair, so the gender of the cluster would be ambiguous. The mention-ranking approach helps prevent this problem by ranking the possible antecedents and choosing just one antecedent for a given mention {https://galhever.medium.com/a-review-to-co-reference-resolution-models-f44b4360a00}
+* Mention-ranking models
+
+The mention-pair method only indirectly solves the coreference resolution task. Note that we want clusters for each entity, not coreferent pairs, and it is unclear what is the best way to merge these pairs into clusters. Furthermore, the mention-pair technique allows for incompatible mentions in the same cluster: a female entity could be coreferent with "he" in one pair and coreferent with "she" in another pair, so the gender of the cluster would be ambiguous. The mention-ranking approach helps prevent this problem by ranking the possible antecedents and choosing just one antecedent for a given mention.
 
 
 ### End-to-end Neural Coreference Resolution
@@ -66,16 +67,16 @@ The input for the model contains a document, D, containing T words, with optiona
 #### The Model
 [[Lee et al., 2017]](#Lee) utilizes LSTM and attention mechanisms for their architecture, and defined pair-wise coreference scores to apply in their span representations.
 
-1. Input to Span Representation
+##### Input to Span Representation
 
-![From Lee et al. Doc Input to Mention Score](\{\{ site.url \}\}/public/images/2021-12-08-coreference-literary-texts/step1_architecture.png)
+![From Lee et al. Doc Input to Mention Score]({{ site.url }}/public/images/2021-12-08-coreference-literary-texts/step1_architecture.png)
 
 * The first step of the end-to-end pipeline takes in the document input (as simple as a sentence), tokenize and calculate the word and character embedding (x), fixed pretrained word embeddings from 300-dimensonal GloVe embeddings, and 1-dimensional convolution neural networks (CNN) over characters.
 
 * The word embeddings then are feeded as inputs into the Bidirectional LSTM network (x*), where it encodes each word in its context, as the surrounding context for each mention span plays an integral role on the scoring of the coreference pairs. 
 
 (insert formulas on pg.190 in Span Representations)
-![Equations for Span Representations]({{ site.url }}/public/images/coreference_literary_texts_fyang3/p.190_span_representations.png)
+![Equations for Span Representations]({{ site.url }}/public/images/2021-12-08-coreference-literary-texts/p.190_span_representations.png)
 
 As we can observe from the equations above, x*t is the concatenated output of the bidirectional LSTM.
 
@@ -84,36 +85,37 @@ It is interesting to note that Lee et al. only uses independent LSTMs for every 
 * The Bidirectional LSTM outputs then gets passed to the next layer of the network to calculate the span head $$\hat{x}$$, where it is a weighted sum of word vectors in a given span. Attention mechanism is applied using this step over words within each span.
 
 (Insert: formula block on top of p.191)
-![Equations for Weighted Sum of Word Vectors]({{ site.url }}/public/images/coreference_literary_texts_fyang3/formula_top_of_191.png)
+![Equations for Weighted Sum of Word Vectors]({{ site.url }}/public/images/2021-12-08-coreference-literary-texts/formula_top_of_191.png)
 
 * The final span representation is then calculated as the accumulation of all the above information with:
 
 (Insert: formula block for gi on p191)
-![Equation for g(i)]({{ site.url }}/public/images/coreference_literary_texts_fyang3/formula_g(i)_191.png)
+![Equation for g(i)]({{ site.url }}/public/images/2021-12-08-coreference-literary-texts/formula_g(i)_191.png)
 
 
-2. Coreference Scoring Calculation
+##### Coreference Scoring Calculation
+
 * Once we have the span representation calculated from the first step, we then move on to the coreference scoring calculation step to obtain the final coreference score for a pair of spans.
 
 The architecture is as follows:
 
 (insert Figure 2. on p.190)
-![Lee et al. Pipeline 2nd Step]({{ site.url }}/public/images/coreference_literary_texts_fyang3/fig.2_p.190.png)
+![Lee et al. Pipeline 2nd Step]({{ site.url }}/public/images/2021-12-08-coreference-literary-texts/fig.2_p.190.png)
 
 Recall from the last step that each possible span i in the document will have a corresponding vector representation $g(i)$. Given the span representations, the scoring functions are then calculated via feed-forward neural networks:
 
 (insert equation on p. 190 left)
-![Scoring Architecture]({{ site.url }}/public/images/coreference_literary_texts_fyang3/scoring_architecture_p.190.png)
+![Scoring Architecture]({{ site.url }}/public/images/2021-12-08-coreference-literary-texts/scoring_architecture_p.190.png)
 
 * With the coreference score (s) being calculated, we are finally able to learn the conditional probability distribution $P(y1,...,yn|D)$ with the final softmax layer to represent the most likely configuration that produces the correct clustering. 
 
 The equation is as follows:
-![Pairwise Coreference Score]({{ site.url }}/public/images/coreference_literary_texts_fyang3/pairwise_coref_score_p189.png)
+![Pairwise Coreference Score]({{ site.url }}/public/images/2021-12-08-coreference-literary-texts/pairwise_coref_score_p189.png)
 
 $s(i,j)$ is the pairwise score for a coreference link between span i and span j in document D. Lee et al. define it as follows:
 
 (insert equation (bottom) on p.189)
-![Learning Objective]({{ site.url }}/public/images/coreference_literary_texts_fyang3/learning_obj_p189.png)
+![Learning Objective]({{ site.url }}/public/images/2021-12-08-coreference-literary-texts/learning_obj_p189.png)
 
 
 The $\epsilon$ represents the dummy antecedent, where span j is either not an entity mention, or it is an entity mention but it is not coreferent with any previous span. By setting the coreference score to 0, the model is able to aggressively prune away the pairs less likely to belong in the same cluster to save computational costs. 
@@ -167,6 +169,7 @@ A final problem is that very prominent entities representing main characters, li
 
 Besides the specific challenges of the model itself as demonstrated by the example, the other challenge of developing neural-network based coreference models is the lack of training data, as hand-labeled gold standard data are extremely expensive to obtain with a high requirement of expertise required. Therefore, another future area of research might be also the generations of synthetic training data, which might also potentially help enhance model developments.
 
+
 #### Bibliography
 
 <a name="Bamman">David Bamman, Olivia Lewke, Anya Mansoor. An Annotated Dataset of Coreference in English Literature. European Language Resources Association, 2020.</a>
@@ -209,67 +212,3 @@ Here, `\{\% include example_content_jdoe/plotly_demo_1.html \%\}` (without the `
 {% include example_content_jdoe/plotly_demo_1.html %}
 
 
-
-## How to add $\LaTeX$ commands to your posts:
-
-### Inline
-
-To add inline math, you can use `$ <math> $`. Here is an example:
-
-
-`$ \sum_{i=0}^j \frac{1}{2^n} \times i $` becomes
-$ \sum_{i=0}^j \frac{1}{2^n} \times i $
-
-### Block
-
-To add block math, you *must* use `$$<math>$$`. Here are some examples:
-
-```
-$$\begin{equation}
-a \times b \times c = 0 \\
-j=1 \\
-k=2 \\
-\end{equation}$$
-```
-
-...becomes...
-
-$$\begin{equation}
-a \times b \times c = 0 \\
-j=1 \\
-k=2 \\
-\end{equation}$$
-
-```
-$$\begin{align}
-i2 \times b \times c =0 \\
-j=1 \\
-k=2 \\
-\end{align}$$
-```
-
-...becomes...
-
-$$\begin{align}
-i2 \times b \times c =0 \\
-j=1 \\
-k=2 \\
-\end{align}$$
-
-Don't forget the enclosing `$$`! Otherwise, your newlines won't work:
-
-```
-\begin{equation}
-i2=0 \\
-j=1 \\
-k=2 \\
-\end{equation}
-```
-
-...becomes...
-
-\begin{equation}
-i2=0 \\
-j=1 \\
-k=2 \\
-\end{equation}
